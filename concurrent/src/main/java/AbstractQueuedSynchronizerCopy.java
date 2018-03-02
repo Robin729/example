@@ -235,7 +235,7 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
       node.next = node; // help GC
     }
   }
-
+  
   /**
    * 逻辑  如果线程应该block就返回true
    * 1.pred.waitStatus = signal  return true  前驱节点状态是signal就block当前节点（返回true），否则就返回false
