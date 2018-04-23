@@ -1,18 +1,17 @@
 import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.locks.LockSupport;
 
 /**
  * @author weijin
  */
-public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerCopy {
+public abstract class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerCopy {
 
   protected AbstractQueuedSynchronizerCopy() { }
 
   static final class Node {
-    /** 声明一个共享模式的节点 */
     static final Node SHARED = new Node();
-    /** 声明一个排他模式的节点 */
     static final Node EXCLUSIVE = null;
 
     static final int CANCELLED = 1;
@@ -24,11 +23,9 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
     volatile Node prev;
     volatile Node next;
     volatile Thread thread;
-
     Node nextWaiter;
 
     final boolean isShared() { return nextWaiter == SHARED; }
-
     final Node predecessor() throws NullPointerException {
       Node p = prev;
       if (p == null)
@@ -37,20 +34,14 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
         return p;
     }
 
-    // Used to establish initial head or SHARED marker
-    Node() {
-    }
-
-    // Used by addWaiter
+    Node() { }
     Node(Thread thread, Node mode) {
-      this.nextWaiter = mode;
       this.thread = thread;
+      nextWaiter = mode;
     }
-
-    // Used by Condition
     Node(Thread thread, int waitStatus) {
-      this.waitStatus = waitStatus;
       this.thread = thread;
+      this.waitStatus = waitStatus;
     }
   }
 
@@ -62,12 +53,11 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
    */
   private volatile int state;
   protected final int getState() { return state; }
-  protected final void setState(int newState) { state = newState; }
+  protected final void setState(int state) { this.state = state; }
   protected final boolean compareAndSetState(int expect, int update) {
     return unsafe.compareAndSwapInt(this, stateOffset, expect, update);
   }
 
-  // 代替park对自旋时间，性能更好
   static final long spinForTimeoutThreshold = 1000L;
 
   /**
@@ -81,12 +71,32 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
   private Node enq(final Node node) {
     for (;;) {
       Node t = tail;
-      if (t == null) { // head和tail需要先初始化，null则初始化
+      if (t == null) { // Must initialize
         if (compareAndSetHead(new Node()))
           tail = head;
       } else {
         node.prev = t;
         if (compareAndSetTail(t, node)) {
+          t.next = node;
+          return t;
+        }
+      }
+    }
+  }
+
+  /**
+   * 使用head出初始化也可以，但显然没有原版优雅，因为多用了一个h变量
+   */
+  private Node enqCopy(final Node node) {
+    for (;;) {
+      Node h = head;
+      if (h == null) {
+        if (compareAndSetTail(null, new Node()))
+          head = tail;
+      } else {
+        Node t = tail;
+        node.prev = t;
+        if (compareAndSetTail(t, tail)) {
           t.next = node;
           return t;
         }
@@ -101,10 +111,8 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
    * 3.返回的是这个新建的节点
    */
   private Node addWaiter(Node mode) {
-    // 当前线程记录在node节点，node.nextWaiter = mode
     Node node = new Node(Thread.currentThread(), mode);
     Node pred = tail;
-    // 这是快速到添加链表到结尾，为了快速
     if (pred != null) {
       node.prev = pred;
       if (compareAndSetTail(pred, node)) {
@@ -112,7 +120,7 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
         return node;
       }
     }
-    // 循环添加到链表结尾
+
     enq(node);
     return node;
   }
@@ -125,9 +133,8 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
 
   /**
    * 逻辑  唤醒一个node（不包括当前节点和waitStatus为Cancelled的节点）后面的节点中休眠的线程
-   * 1.当前节点node.waitStatus < 0 即非取消状态则设置为0，失败了也没关系
-   * 2.如果下一个节点node.next.waitStatus != cancelled状态的节点,则从tail开始查找不是cancelled状态的节点
-   * 3.如果找到了不是cancelled状态的节点就unpark(node.thread)，即唤醒在这个节点等待的线程
+   * 1.找到最靠近node的非cancelled的节点唤醒一次
+   * 2.当前node状态尝试一次设置为0
    */
   private void unparkSuccessor(Node node) {
     int ws = node.waitStatus;
@@ -137,48 +144,12 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
     Node s = node.next;
     if (s == null || s.waitStatus > 0) {
       s = null;
-      for (Node t = tail; t != null && t != node; t = t.prev) {
+      for (Node t = tail; t != null && t != node; t = t.prev)
         if (t.waitStatus <= 0)
           s = t;
-      }
     }
-
     if (s != null)
       LockSupport.unpark(s.thread);
-  }
-
-  /**
-   * 逻辑 就是signal信号的线程唤醒动作
-   * 1.初始化了且不是dummy的node
-   * 2.如果waitStatus==0(0是中间的状态
-   * 3.如果head变更，就会循环执行，就是释放过程中head的状态需要保持一致
-   */
-  private void doReleaseShared() {
-    for (;;) {
-      Node h = head;
-      if (h != null && h != tail) {
-        int ws = h.waitStatus;
-        if (ws == Node.SIGNAL) {
-          if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
-            continue;
-          unparkSuccessor(h);
-        }
-        else if (ws == 0 && !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
-          continue;
-      }
-      if (h == head)
-        break;
-    }
-  }
-
-  private void setHeadAndPropagate(Node node, int propagate) {
-    Node h = head;
-    setHead(node);
-    if (propagate > 0 || h == null || h.waitStatus < 0 || (h = head) == null || h.waitStatus < 0) {
-      Node s = node.next;
-      if (s == null || s.isShared())
-        doReleaseShared();
-    }
   }
 
   /**
@@ -235,7 +206,7 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
       node.next = node; // help GC
     }
   }
-  
+
   /**
    * 逻辑  如果线程应该block就返回true
    * 1.pred.waitStatus = signal  return true  前驱节点状态是signal就block当前节点（返回true），否则就返回false
@@ -257,9 +228,95 @@ public class AbstractQueuedSynchronizerCopy extends AbstractOwnableSynchronizerC
     return false;
   }
 
-  
+  static void selfInterrupt() { Thread.currentThread().interrupt(); }
 
-  private static final Unsafe unsafe = Unsafe.getUnsafe();
+  private final boolean parkAndCheckInterrupt() {
+    LockSupport.park(this);
+    return Thread.interrupted();
+  }
+
+  final boolean acqureQueued(final Node node, int arg) {
+    boolean failed = true;
+    try {
+      boolean interrupted = false;
+      for (;;) {
+        final Node p = node.predecessor();
+        if (p == head /*&& tryAcquire(arg)*/) {
+          setHead(node);
+          p.next = null;
+          failed = false;
+          return interrupted;
+        }
+        if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
+          interrupted = true;
+      }
+    } finally {
+      if (failed)
+        cancelAcquire(node);
+    }
+  }
+
+  public final void acquire(int arg) {
+    if (!tryAcquire(arg) && acqureQueued(addWaiter(Node.EXCLUSIVE), arg))
+      selfInterrupt();
+  }
+
+  /**
+   * 逻辑 就是signal信号的线程唤醒动作
+   * 1.初始化了且不是dummy的node
+   *    ws == signal
+   *      如果!(CAS.h.ws = 0) 则 重复循环
+   *      成功 则unparkSuccessor(h);
+   *    ws == 0 && !CAS.h.ws = propagate 则 重复循环
+   * 2.如果head变更，就会循环执行，就是释放过程中head的状态需要保持一致
+   */
+  private void doReleaseShared() {
+    for (;;) {
+      Node h = head;
+      if (h != null && h != tail) {
+        int ws = h.waitStatus;
+        if (ws == Node.SIGNAL) {
+          if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
+            continue;            // loop to recheck cases
+          unparkSuccessor(h);
+        }
+        else if (ws == 0 &&
+                !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
+          continue;                // loop on failed CAS
+      }
+      if (h == head)                   // loop if head changed
+        break;
+    }
+  }
+
+  private void setHeadAndPropagate(Node node, int propagate) {
+    Node h = head;
+    setHead(node);
+    if (propagate > 0 || h == null || h.waitStatus < 0 || (h = head) == null || h.waitStatus < 0) {
+      Node s = node.next;
+      if (s == null || s.isShared())
+        doReleaseShared();
+    }
+  }
+
+
+  protected boolean tryAcquire(int arg) {
+    throw new UnsupportedOperationException();
+  }
+
+  private static final Unsafe unsafe;
+
+  // steal the Unsafe
+  static {
+    try {
+      Field f = Unsafe.class.getDeclaredField("theUnsafe");
+      f.setAccessible(true);
+      unsafe = (Unsafe) f.get(null);
+    } catch (Exception ex) {
+      throw new Error(ex);
+    }
+  }
+
   private static final long stateOffset;
   private static final long headOffset;
   private static final long tailOffset;
