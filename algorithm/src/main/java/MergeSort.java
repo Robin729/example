@@ -1,4 +1,4 @@
-package Java;
+package main.java;
 
 public class MergeSort {
     public static void main(String[] args) {

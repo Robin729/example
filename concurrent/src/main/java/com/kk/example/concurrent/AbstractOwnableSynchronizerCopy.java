@@ -1,3 +1,5 @@
+package com.kk.example.concurrent;
+
 /**
  * @author weijin
  */
