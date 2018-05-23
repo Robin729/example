@@ -1,4 +1,4 @@
-package main.java;
+package com.kk.example.algorithm.sort;
 
 public class BubbleSort {
     /**
