@@ -11,6 +11,10 @@
 	<name>example</name>
 	<url>http://</url>
 
+	<properties>
+		<projectVersion>1.0-SNAPSHOT</projectVersion>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -27,6 +31,7 @@
 	<modules>
 		<module>algorithm</module>
 		<module>concurrent</module>
+		<module>effective_java</module>
 	</modules>
 
 </project>
