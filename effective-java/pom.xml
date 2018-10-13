@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,16 +11,16 @@
     </parent>
 
     <!--注意包的结构-->
-    <!--1.这里的包名就是example.concurrent。即在src/java/main/example/concurrent/-->
+    <!--1.这里的包名就是example.concurrent。即在src/java/main/example/effective-java/-->
     <!--这里隐含了groupId是example，因为有parent，所以不声明默认groupId和parent的groupId一致-->
-    <artifactId>concurrent</artifactId>
+    <artifactId>effective-java</artifactId>
     <packaging>jar</packaging>
     <!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
 
-    <name>Example/concurrent</name>
+    <name>Example/effective-java</name>
 
     <properties>
-        <javaModuleName>example.concurrent</javaModuleName>
+        <javaModuleName>example.effective-java</javaModuleName>
     </properties>
 
     <!--子模块的依赖-->
@@ -33,13 +33,6 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
         </dependency>
-
-        <!--依赖同级子模块的时候的版本声明，同样必须保持groupId和version的版本一致-->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>effective-java</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <!--build的过程的插件也同样是尽量使用parent的插件-->
@@ -51,4 +44,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

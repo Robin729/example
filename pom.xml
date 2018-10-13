@@ -1,37 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.kk.example</groupId>
-	<artifactId>example</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<groupId>example</groupId>
+	<artifactId>example-parent</artifactId>
 	<packaging>pom</packaging>
-	<name>example</name>
-	<url>http://</url>
 
+	<!--明确父项目的版本号-->
+	<version>3.2.3-SNAPSHOT</version>
+
+	<!--name，url，description-->
+	<!--项目的名称标识，例如Netty就直接写做Netty，我们这里就直接写成Example-->
+	<name>Example</name>
+	<!--项目的官方网址，这里以netty来举例-->
+	<url>http://netty.io</url>
+	<description>用于学习的项目实例</description>
+
+	<!--项目的组织名称和url-->
+	<organization>
+		<name>The Netty Project</name>
+		<url>http://netty.io/</url>
+	</organization>
+
+	<!--项目的license信息-->
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<!--项目创建时间-->
+	<inceptionYear>2018</inceptionYear>
+
+	<!--项目的仓库-->
+	<scm>
+	</scm>
+
+	<!--项目的开发者，同样以Netty举例-->
+	<developers>
+		<developer>
+			<id>netty.io</id>
+			<name>The Netty Project Contributors</name>
+			<email>netty@googlegroups.com</email>
+			<url>http://netty.io/</url>
+			<organization>The Netty Project</organization>
+			<organizationUrl>http://netty.io/</organizationUrl>
+		</developer>
+	</developers>
+
+	<!--待补充-->
+	<profiles>
+	</profiles>
+
+	<!--属性管理-->
+	<!--1.管理所有子模块共有的依赖版本-->
+	<!--自定义属性信息-->
+	<!--1.公共依赖定义：公共依赖是所有子模块所共有的模块，-->
+	<!--所有公共依赖的版本都必须由当前parent管理，-->
+	<!--子模块不允许声明公共模块的版本，子模块如果需要使用-->
+	<!--公共模块，只需要声明依赖即可。对于只有子模块独有的依赖-->
+	<!--则子模块可以自己单独声明版本，子模块的依赖尽量在-->
+	<!--父模块中声明-->
+	<!--1.公共模块版本规范必须为${groupId}_version的形式-->
+	<!--2.公共模块的版本必须在properties中声明-->
 	<properties>
-		<projectVersion>1.0-SNAPSHOT</projectVersion>
+		<vertx-web_version>3.5.4</vertx-web_version>
+		<jctools-core_version>2.1.1</jctools-core_version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
+	<!--项目模块-->
+	<!--1.具有聚合的功能-->
+	<!--2.子模块也要求继承当前模块-->
 	<modules>
 		<module>algorithm</module>
 		<module>concurrent</module>
-		<module>effective_java</module>
+		<module>effective-java</module>
+		<module>spring</module>
 	</modules>
 
+	<!--依赖管理-->
+	<!--1.管理所有子模块共有的依赖-->
+	<!--2.依赖的版本必须在properties声明，命名方式为依赖的artifactId_version-->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.vertx</groupId>
+				<artifactId>vertx-web</artifactId>
+				<version>${vertx-web_version}</version>
+			</dependency>
+
+			<!-- Java concurrency tools for the JVM -->
+			<dependency>
+				<groupId>org.jctools</groupId>
+				<artifactId>jctools-core</artifactId>
+				<version>${jctools-core_version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<!--父模块可能有需要子类都继承的依赖-->
+	<dependencies>
+	</dependencies>
+
+	<!--构建-->
+	<!--1.管理所有构建过程-->
+	<build>
+		<!--build的插件-->
+		<plugins>
+
+		</plugins>
+
+		<!--插件管理-->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

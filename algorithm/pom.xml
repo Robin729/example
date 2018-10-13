@@ -5,24 +5,46 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.kk.example</groupId>
-		<artifactId>example</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<groupId>example</groupId>
+		<artifactId>example-parent</artifactId>
+		<version>3.2.3-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.kk.example</groupId>
 	<artifactId>algorithm</artifactId>
-	<version>${projectVersion}</version>
+	<packaging>jar</packaging>
+	<!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
 
+	<name>Example/algorithm</name>
+
+	<properties>
+		<javaModuleName>example.algorithm</javaModuleName>
+	</properties>
+
+	<!--子模块的依赖-->
+	<!--1.尽可能依赖的版本的声明在parent中-->
+	<!--2.子模块如果想使用parent声明的依赖只需要声明groupId和artifactId即可，不需要单独声明version-->
+	<!--3.当前子模块如果需要使用parent没有的依赖需尽量在parent中什么，-->
+	  <!--实在是只有当前子模块才使用则可以在当前版本声明version-->
+	<dependencies>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-web</artifactId>
+		</dependency>
+
+		<!--依赖同级子模块的时候的版本声明，同样保持groupId和version的版本一致-->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>concurrent</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<!--build的过程的插件也同样是尽量使用parent的插件-->
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
