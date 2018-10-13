@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>example</groupId>
+        <artifactId>example-parent</artifactId>
+        <version>3.2.3-SNAPSHOT</version>
+    </parent>
+
+    <!--注意包的结构-->
+    <!--1.这里的包名就是example.concurrent。即在src/java/main/example/concurrent/-->
+    <!--这里隐含了groupId是example，因为有parent，所以不声明默认groupId和parent的groupId一致-->
+    <artifactId>design-pattern</artifactId>
+    <packaging>jar</packaging>
+    <!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
+
+    <name>Example/design-pattern</name>
+
+    <properties>
+        <javaModuleName>example.design-pattern</javaModuleName>
+    </properties>
+
+    <!--子模块的依赖-->
+    <!--1.尽可能依赖的版本的声明在parent中-->
+    <!--2.子模块如果想使用parent声明的依赖只需要声明groupId和artifactId即可，不需要单独声明version-->
+    <!--3.当前子模块如果需要使用parent没有的依赖需尽量在parent中什么，-->
+    <!--实在是只有当前子模块才使用则可以在当前版本声明version-->
+    <dependencies>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+        </dependency>
+
+        <!--依赖同级子模块的时候的版本声明，同样必须保持groupId和version的版本一致-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>effective-java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <!--build的过程的插件也同样是尽量使用parent的插件-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
