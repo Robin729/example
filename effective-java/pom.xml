@@ -13,14 +13,14 @@
     <!--注意包的结构-->
     <!--1.这里的包名就是example.concurrent。即在src/java/main/example/effective-java/-->
     <!--这里隐含了groupId是example，因为有parent，所以不声明默认groupId和parent的groupId一致-->
-    <artifactId>effective-java</artifactId>
+    <artifactId>example-effective-java</artifactId>
     <packaging>jar</packaging>
     <!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
 
-    <name>Example/effective-java</name>
+    <name>Example/Effective/Java</name>
 
     <properties>
-        <javaModuleName>example.effective-java</javaModuleName>
+        <javaModuleName>example.effective.java</javaModuleName>
     </properties>
 
     <!--子模块的依赖-->

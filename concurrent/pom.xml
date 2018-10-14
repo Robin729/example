@@ -13,11 +13,12 @@
     <!--注意包的结构-->
     <!--1.这里的包名就是example.concurrent。即在src/java/main/example/concurrent/-->
     <!--这里隐含了groupId是example，因为有parent，所以不声明默认groupId和parent的groupId一致-->
-    <artifactId>concurrent</artifactId>
+    <!--artifactId推荐项目名+模块名， 考虑这种情况5个项目同时都有core模块，如果没有项目名区分将造成打包的混乱-->
+    <artifactId>example-concurrent</artifactId>
     <packaging>jar</packaging>
     <!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
 
-    <name>Example/concurrent</name>
+    <name>Example/Concurrent</name>
 
     <properties>
         <javaModuleName>example.concurrent</javaModuleName>
@@ -37,7 +38,7 @@
         <!--依赖同级子模块的时候的版本声明，同样必须保持groupId和version的版本一致-->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>effective-java</artifactId>
+            <artifactId>example-effective-java</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

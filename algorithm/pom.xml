@@ -10,11 +10,12 @@
 		<version>3.2.3-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>algorithm</artifactId>
+    <!--artifactId推荐项目名+模块名， 考虑这种情况5个项目同时都有core模块，如果没有项目名区分将造成打包的混乱-->
+	<artifactId>example-algorithm</artifactId>
 	<packaging>jar</packaging>
 	<!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
 
-	<name>Example/algorithm</name>
+	<name>Example/Algorithm</name>
 
 	<properties>
 		<javaModuleName>example.algorithm</javaModuleName>
@@ -34,7 +35,7 @@
 		<!--依赖同级子模块的时候的版本声明，同样保持groupId和version的版本一致-->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>concurrent</artifactId>
+			<artifactId>example-concurrent</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
