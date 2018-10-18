@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>example</groupId>
+        <artifactId>example-parent</artifactId>
+        <version>3.2.3-SNAPSHOT</version>
+    </parent>
+
+    <!--需修改-->
+    <artifactId>example-son-module-template</artifactId>
+    <packaging>jar</packaging>
+    <!--<version>3.2.3-SNAPSHOT</version>子模块不需要声明版本，子模块版本只需要和父模块保持一致即可-->
+
+    <!--需修改-->
+    <name>Example/Son/Module/Template</name>
+
+    <!--需修改-->
+    <properties>
+        <javaModuleName>example.son.module.template</javaModuleName>
+    </properties>
+
+    <dependencies>
+        <!--依赖管理-父模块声明子模块使用-->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

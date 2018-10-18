@@ -4,6 +4,28 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<!--规范-->
+	<!--1.版本-->
+	<!--1.1.同一个项目所有的模块版本相同-->
+    <!--1.2.子模块全部继承父模块的版本-->
+	<!--1.3.开发测试使用SNAPSHOT-->
+	<!--1.4.生产发布使用RELEASE-->
+	<!--1.5.新版本迭代只修改顶层POM中的版本-->
+	<!--2.依赖-->
+	<!--2.1.在顶层模块POM的<dependencyManagement/>节中定义所有子模块的依赖版本号，子模块中添加依赖时不要添加版本号-->
+	<!--3.构建插件-->
+
+	<!--实例-->
+	<!--创建子模块-->
+	<!--创建子模块-创建新的子模块-无下级模块-->
+	<!--创建子模块-创建新的子模块-有下级模块-->
+	<!--创建子模块-创建间隔文件夹的子模块-相对路径-->
+	<!--依赖管理-->
+	<!--依赖管理-父模块声明子模块使用-->
+	<!--依赖管理-子模块间依赖使用-->
+	<!--依赖管理-非继承方式管理依赖-依赖单独由一个pom聚集起来管理-->
+	<!--SpringBoot-->
+	<!--SpringBoot-非继承形式使用SpringBoot-->
 	<groupId>example</groupId>
 	<artifactId>example-parent</artifactId>
 	<packaging>pom</packaging>
@@ -80,6 +102,19 @@
         <module>design-pattern</module>
 		<module>effective-java</module>
 		<module>spring</module>
+		<module>spring-boot</module>
+		<module>pom-dependency/test.pom.xml</module>
+
+		<!--创建子模块-创建新的子模块-无下级模块-->
+		<module>son-module-template</module>
+		<!--创建子模块-创建间隔文件夹的子模块-相对路径-->
+		<module>directory/son-module-template1</module>
+		<!--创建子模块-创建新的子模块-有下级模块-->
+		<!--依赖管理-父模块声明子模块使用-->
+		<!--依赖管理-子模块间依赖使用-->
+		<!--尽量不要有嵌套模块，尽量保持模块深度只有一级，即只有parent和son-->
+		<!--嵌套模块，此模块不依赖其它模块，且模块内保护多个模块（不依赖其它模块），则声明成pom-->
+		<module>son-module-template2</module>
 	</modules>
 
 	<!--依赖管理-->
@@ -87,6 +122,7 @@
 	<!--2.依赖的版本必须在properties声明，命名方式为依赖的artifactId_version-->
 	<dependencyManagement>
 		<dependencies>
+			<!--依赖管理-父模块声明子模块使用-->
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-web</artifactId>
@@ -99,11 +135,42 @@
 				<artifactId>jctools-core</artifactId>
 				<version>${jctools-core_version}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>example</groupId>
+				<artifactId>pom-dependency</artifactId>
+				<version>1.0.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<!--SpringBoot-非继承形式使用SpringBoot-->
+			<!--非继承形式SpringBoot，且将其中的data的依赖的版本替换，替换的时候必须在boot前声明-->
+			<!--非继承形式的SpringBoot没有构建插件，继承形式的SpringBoot是有插件的，如果需要插件则需要单独在插件管理中声明-->
+			<!-- Override Spring Data release train provided by Spring Boot -->
+			<dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-releasetrain</artifactId>
+				<version>Fowler-SR2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>2.0.6.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
-	<!--父模块可能有需要子类都继承的依赖-->
+	<!--非继承类依赖-->
 	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 	</dependencies>
 
 	<!--构建-->
@@ -126,7 +193,55 @@
 						<target>1.8</target>
 					</configuration>
 				</plugin>
+
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<version>2.0.6.RELEASE</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<!--仓库配置-->
+	<!--一般也可以在maven的settings.xml中配置仓库地址-->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven-net-cn</id>
+			<name>Maven China Mirror</name>
+			<url>http://maven.net.cn/content/groups/public/</url>
+			<!--告诉Maven可以从这个仓库下载releases版本的构件-->
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<!--告诉Maven不要从这个仓库下载snapshot版本的构件-->
+			<!--如果是私有仓库推荐开启，公共仓库推荐关闭，因为snapshot不稳定-->
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<!--发布-->
+	<!--mvn deploy-->
+	<!--发布jar包，当需要将jar包发布到私有仓库的时候-->
+	<distributionManagement>
+		<repository>
+			<id>nexus-releases</id>
+			<name>Nexus Release Repository</name>
+			<url>http://127.0.0.1:8080/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<name>Nexus Snapshot Repository</name>
+			<url>http://127.0.0.1:8080/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
