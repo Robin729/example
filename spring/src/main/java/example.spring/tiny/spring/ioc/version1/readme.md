@@ -1,0 +1,4 @@
+BeanFactory 保存bean的工厂
+BeanDefinition 保存bean及其定义的信息
+
+IoC最基本的角色有两个：容器(BeanFactory)和Bean本身。这里使用BeanDefinition来封装了bean对象，这样可以保存一些额外的元信息
