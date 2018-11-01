@@ -103,6 +103,7 @@
 		<module>effective-java</module>
 		<module>spring</module>
 		<module>spring-boot</module>
+		<module>mybatis</module>
 		<module>pom-dependency/test.pom.xml</module>
 
 		<!--创建子模块-创建新的子模块-无下级模块-->
